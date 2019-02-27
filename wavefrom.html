@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src='./jquery-3.3.1.min.js'></script>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.timeline.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.regions.js"></script>
+
+
+
+
+    <style>
+        .waveform {
+            max-width: 800px;
+            height: 128px;
+            margin-left: 100px;
+            border: 1px solid #000;
+        }
+
+        #wave-timeline {
+            margin: auto;
+            margin-left: 100px;
+            max-width: 800px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="waveform" class="waveform"></div>
+    <div id="wave-timeline"></div>
+
+    <a href="javascript:" id="btnPlay" role="button">播放</a>
+    <a href="javascript:" id="btnPause" role="button">暂停</a>
+    <a href="javascript:" id="btnStop" role="button">停止</a>
+    <a href="javascript:" id="addRegion" role="button">添加标注段</a>
+    <a href="javascript:" id="playRegion1" role="button">播放标注段1</a>
+    <a href="javascript:" id="playRegion2" role="button">播放标注段2</a>
+
+
+</body>
+
+</html>
+<script>
+    var wavesurfer = WaveSurfer.create({
+
+        container: '#waveform',
+        waveColor: 'violet',
+        progressColor: 'purple',
+        cursorColor: 'red', //光标的颜色
+        cursorWidth: 1, //以像素为单位测量 2
+        audioRate: 6, //音频播放的速度，数字越大越快
+        hideScrollbar: true, //隐藏滚动条
+        scrollParent: true, //形成滚动的容器
+
+
+
+        plugins: [
+            WaveSurfer.timeline.create({
+                container: "#wave-timeline",
+                primaryColor: '#F10215',
+            }),
+            WaveSurfer.regions.create({
+                regions: [{
+                    start: 0,
+                    end: 5,
+                    resize:true,
+                    loop:false,//选择区域循环播放
+                    drag:true,
+                  
+                    color: 'hsla(400, 100%, 30%, 0.5)'
+                }],
+
+            })
+
+        ],
+
+
+
+    });
+    var changeStart = '';
+    var changeEnd = '';
+
+    wavesurfer.load('./11202.wav');
+    wavesurfer.on('region-update-end', function (e) { //标注段拖拽触发的事件
+        
+        let ele = e.element.title = '0.00 - 0.15'  //更改title的结构
+        
+        console.log(e)
+        let time = ele.split('-')
+       
+        let time1 = time[0]
+        
+        let time1_ = time1.split('.')
+
+        changeTime(e)
+
+
+    });
+
+    function changeTime(e) {
+        changeStart = parseInt(e.start)
+        changeEnd = changeStart + 5
+
+        console.log(changeStart, changeEnd)
+    }
+
+
+    // 播放和暂停
+    btnPlay.addEventListener('click', function () {
+        wavesurfer.play(); //播放时段
+        let totalTime = wavesurfer.getDuration()
+
+        console.log(totalTime)
+
+
+    });
+    btnPause.addEventListener('click', function () {
+        wavesurfer.pause();
+    });
+
+    btnStop.addEventListener('click', function () {
+        wavesurfer.stop(); //停止返回初始位置
+    });
+
+    addRegion.addEventListener('click', function () {
+        let options = {
+            start: 10,
+            end: 15,
+            color: 'rgba(234,45,67,.3)'
+        }
+        wavesurfer.addRegion(options); //停止返回初始位置
+    });
+
+    playRegion1.addEventListener('click', function () {
+
+        wavesurfer.play(changeStart, changeEnd); //播放时段
+       
+
+    });
+    playRegion2.addEventListener('click', function () {
+        wavesurfer.play(10, 15); //播放时段
+
+    });
+</script>
